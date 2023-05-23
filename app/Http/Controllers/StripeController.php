@@ -14,6 +14,7 @@ use Stripe\Stripe as StripeStripe;
 
 class StripeController extends Controller{
 
+
     public function singleCharge(Request $request){
         $amount = $request->amount;
         $amount = $amount * 100;
@@ -25,6 +26,7 @@ class StripeController extends Controller{
         $paymentMethod = $user->addPaymentMethod($paymentMethod);
         $user->charge($amount,$paymentMethod->id);
     }
+
 
     public function storePlan(Request $request){
         try{
@@ -40,6 +42,23 @@ class StripeController extends Controller{
             ],
         ]);
 
+       // dd($plan->paymentMethod);
+
+       \Stripe\Subscription::update(
+            'sub_1NAtsISA4SjjlNffCUdGl7Si',
+            [
+            'payment_settings' => [
+                'payment_method_types' => ['card'],
+            ],
+            ]
+        );
+       $this->stripe->subscriptions->create([
+            'customer' => 'cus_NwRQDsuVq0EeS3',
+            //'billing_method' =>'pi_3NAuPkSA4SjjlNff0ypr59Pg',
+            'items' => [
+              ['price' => 'plan_NwnO4XFvfTZyA1'],
+            ],
+          ]);
 
         ModelsPlan::create([
             'plan_id'           => $plan->id,
@@ -66,6 +85,10 @@ class StripeController extends Controller{
 
     public function planCheckout($id,Request $request){
         $plan = ModelsPlan::where('plan_id',$id)->first();
+        $data = auth()->user()->createSetupIntent();
+
+        return $data;
+
         if(!$plan){
             return response()->json([
                 'message' => 'Plan Not Found',
@@ -73,16 +96,23 @@ class StripeController extends Controller{
             ]);
         }
         else{
+            //dd($plan);
             $user = auth()->user();
+            //dd($user);
             $user->createOrGetStripeCustomer();
+            //dd($user);
+            $plan = ModelsPlan::where('plan_id',$id)->first();
+            //dd($plan);
             $paymentMethod = null;
-            $paymentMethod = $request->payment_method;
+            $paymentMethod = $plan->billing_method;
+            dd($paymentMethod);
 
             if($paymentMethod != null){
                 $paymentMethod = $user->addPaymentMethod($paymentMethod);
             }
+            dd($paymentMethod);
             $plan = $request->plan_id;
-
+            dd($plan);
             try{
                 $user->newSubscription(
                     'default',$plan
@@ -90,6 +120,7 @@ class StripeController extends Controller{
             }catch(Exception $ex){
                 return response()->json($ex->getMessage());
             }
+            //dd($user);
             return response()->json('success',200);
             //return response()->json(['data'=>$plan,'user'=>auth()->user()->createSetupIntent()]);
         }
