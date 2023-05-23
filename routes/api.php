@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\StripeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,8 +34,13 @@ Route::middleware('auth:sanctum')->group(function(){
 
     Route::controller(StripeController::class)->prefix('stripe')->group(function(){
         Route::post('single-charge','singleCharge');
+        Route::post('plan-checkout/{id}','planCheckout');
+    });
+
+    Route::controller(PlanController::class)->prefix('plan')->group(function(){
         Route::post('create-plan','storePlan');
         Route::get('get-plan','getPlan');
-        Route::post('plan-checkout/{id}','planCheckout');
+        Route::post('update-plan','updatePlan');
+        Route::delete('delete-plan/{id}','deletePlan');
     });
 });
