@@ -9,4 +9,9 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
+
+    protected $stripe;
+    public function __construct() {
+        $this->stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+    }
 }
