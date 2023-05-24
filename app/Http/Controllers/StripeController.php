@@ -44,19 +44,20 @@ class StripeController extends Controller{
 
        // dd($plan->paymentMethod);
 
-       \Stripe\Subscription::update(
-            'sub_1NAtsISA4SjjlNffCUdGl7Si',
-            [
-            'payment_settings' => [
-                'payment_method_types' => ['card'],
-            ],
-            ]
-        );
-       $this->stripe->subscriptions->create([
+    //    \Stripe\Subscription::update(
+    //         'sub_1NAtsISA4SjjlNffCUdGl7Si',
+    //         [
+    //         'payment_settings' => [
+    //             'payment_method_types' => ['card'],
+    //         ],
+    //         ]
+    //     );
+        $sub = $this->stripe->subscriptions->create([
             'customer' => 'cus_NwRQDsuVq0EeS3',
             //'billing_method' =>'pi_3NAuPkSA4SjjlNff0ypr59Pg',
             'items' => [
               ['price' => 'plan_NwnO4XFvfTZyA1'],
+              'default_payment_method'
             ],
           ]);
 
@@ -72,7 +73,7 @@ class StripeController extends Controller{
         catch(Expectation $ex){
             return response()->json($ex);
         }
-        return response()->json($plan);
+        return response()->json($sub);
     }
 
 
@@ -126,9 +127,19 @@ class StripeController extends Controller{
         }
     }
 
-
-
-
+    public function createPayment(Request $request){
+        $stripe = new \Stripe\StripeClient(
+            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
+        );
+        $data = $stripe->paymentIntents->create([
+            'amount' => 2000,
+            'currency' => 'usd',
+            'automatic_payment_methods' => [
+              'enabled' => true,
+            ],
+        ]);
+        dd($data);
+    }
 
 
 

@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\PriceController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,12 +38,39 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::controller(StripeController::class)->prefix('stripe')->group(function(){
         Route::post('single-charge','singleCharge');
         Route::post('plan-checkout/{id}','planCheckout');
+        Route::post('create-payment','createPayment');
     });
 
     Route::controller(PlanController::class)->prefix('plan')->group(function(){
-        Route::post('create-plan','storePlan');
-        Route::get('get-plan','getPlan');
-        Route::post('update-plan','updatePlan');
-        Route::delete('delete-plan/{id}','deletePlan');
+        Route::post('create','storePlan');
+        Route::get('get/{id}','getPlan');
+        Route::post('update/{id}','updatePlan');
+        Route::delete('delete/{id}','deletePlan');
+        Route::get('list','listPlan');
     });
+
+    Route::controller(PriceController::class)->prefix('price')->group(function(){
+        Route::post('create','createPrice');
+        Route::get('get','getPrice');
+        Route::patch('update/{id}','updatePrice');
+        Route::get('list','priceList');
+    });
+
+    Route::controller(ProductController::class)->prefix('product')->group(function(){
+        Route::post('create','createProduct');
+        Route::get('get/{id}','getProduct');
+        Route::get('list','listProduct');
+        Route::patch('update/{id}','updateProduct');
+        Route::delete('delete/{id}','deleteProduct');
+    });
+
+    Route::controller(SubscriptionController::class)->prefix('subscription')->group(function(){
+        Route::post('create','createSubscription');
+        Route::get('get/{id}','getSubscription');
+        Route::get('list','listSubscription');
+        Route::delete('cancle/{id}','cancleSubscription');
+        Route::post('resume/{id}','resumeSubscription');
+    });
+
+
 });

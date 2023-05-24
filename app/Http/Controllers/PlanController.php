@@ -11,7 +11,6 @@ class PlanController extends Controller
 {
     public function storePlan(Request $request){
         try{
-
         $amount = ($request->amount * 100);
         \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
         $plan = Plan::create([
@@ -24,24 +23,6 @@ class PlanController extends Controller
             ],
         ]);
 
-       // dd($plan->paymentMethod);
-
-    //    \Stripe\Subscription::update(
-    //         'sub_1NAtsISA4SjjlNffCUdGl7Si',
-    //         [
-    //         'payment_settings' => [
-    //             'payment_method_types' => ['card'],
-    //         ],
-    //         ]
-    //     );
-    //    $this->stripe->subscriptions->create([
-    //         'customer' => 'cus_NwRQDsuVq0EeS3',
-    //         //'billing_method' =>'pi_3NAuPkSA4SjjlNff0ypr59Pg',
-    //         'items' => [
-    //           ['price' => 'plan_NwnO4XFvfTZyA1'],
-    //         ],
-    //       ]);
-
         ModelsPlan::create([
             'plan_id'           => $plan->id,
             'name'              => $request->name,
@@ -52,56 +33,63 @@ class PlanController extends Controller
         ]);
         }
         catch(Exception $ex){
-            return response()->json($ex);
+            return error($ex);
         }
-        return response()->json($plan);
+        return success('Plan Created Successfully',$plan);
     }
 
-    public function getPlan(){
-        $basic = ModelsPlan::where('name','basic')->first();
-        $professional = ModelsPlan::where('name','professional')->first();
-        $enterprise = ModelsPlan::where('name','enterprise')->first();
-        return response()->json([$basic,$professional,$enterprise]);
+    public function getPlan($id){
+        $stripe = new \Stripe\StripeClient(
+            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
+        );
+        $plan = $stripe->plans->retrieve(
+            $id,
+            []
+        );
+        if(isset($plan)){
+            return success('Plan Details',$plan,200);
+        }
+            return error('Plan Not Found',404);
     }
 
 
-    public function updatePlan(Request $request){
-        //dd($request);
-        // $stripe = new \Stripe\StripeClient(
-        //     'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        //   );
-        //$plan = ModelsPlan::where('plan_id',$id)->first();
-        $amount = ($request->amount * 100);
-          $this->stripe->plans->update(
-            'plan_NwoPRge1RRQiuj',
-            ['amount'            => $amount,
-            'currency'          => $request->currency,
-            'interval'          => $request->billing_period,
-            'interval_count'    => $request->interval_count,
-            'product'           => [
-                'name'  => $request->name,
-            ]]
-          );
+    public function updatePlan(Request $request,$id){
+        $stripe = new \Stripe\StripeClient(
+            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
+        );
+        $plan = $stripe->plans->update(
+            $id,
+            ['metadata' => ['order_id' => '6735']]
+        );
+        if($plan){
+            return success('Plan Updated Successfully',$plan);
+        }
+        return error('Plan Not Updated Successfully');
     }
 
     public function deletePlan($id){
         $stripe = new \Stripe\StripeClient(
-    'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
+            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
+          );
+        $plan = $stripe->plans->delete(
+            $id,
+            []
+        );
+        if($plan){
+            return success('Plan Deleted Successfully');
+        }
+        return error('Plan Not Deleted Successfully');
+    }
+
+    public function listPlan(){
+        $stripe = new \Stripe\StripeClient(
+            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
         );
 
-        $plan = ModelsPlan::where('plan_id',$id)->first();
-        dd($plan);
-        if($plan){
-            $stripe->plans->delete(
-            $id,
-                []
-            );
-
-            $plan->delete();
-            return response()->json(['message' => 'success',200]);
+        $plan = $stripe->plans->all();
+        if(count($plan) > 0){
+            return success('Plan List',$plan,200);
         }
-        else{
-            return response()->json(['message'=>'Plan Not deleted',401]);
-        }
+        return error('Plan Not Found',404);
     }
 }
