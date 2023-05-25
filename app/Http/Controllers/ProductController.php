@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -14,8 +15,15 @@ class ProductController extends Controller
             'name' => $request->name,
             'description' => $request->description,
         ]);
+
+        $productData = Product::create([
+            'product_id'        => $product->id,
+            'name'              => $product->name,
+            'description'       => $product->description,
+            'type'              => $product->type
+        ]);
         if(count($product) > 0){
-            return success('Product Created Successfully',$product,200);
+            return success('Product Created Successfully',$product,$productData,200);
         }
         return error('Product Not Created',401);
     }
@@ -51,8 +59,14 @@ class ProductController extends Controller
         );
         $product = $stripe->products->update(
             $id,
-            ['metadata' => ['order_id' => '6735','name' => $request->name]]
+            ['metadata' => ['order_id' => '6735','name' => $request->name,'description' => $request->description]]
         );
+
+        $productData = Product::where('product_id',$id)->first();
+        $productData->update($request->only(
+            'name',
+                'description'
+        ));
         if($product){
             return success('Product Update Successfully',$product,200);
         }
@@ -63,10 +77,16 @@ class ProductController extends Controller
         $stripe = new \Stripe\StripeClient(
             'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
         );
-        $product = $stripe->products->delete(
+        $product = Product::where('product_id',$id)->first();
+        if(isset($product)){
+            $product->delete();
+            $product = $stripe->products->delete(
             $id,
             []
-        );
-        return error('Product Deleted Successfully');
+            );
+            return success('Product deleted Successfully');
+        }else{
+            return error('Product Not Deleted');
+        }
     }
 }
