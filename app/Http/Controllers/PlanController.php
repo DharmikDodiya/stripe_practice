@@ -71,14 +71,17 @@ class PlanController extends Controller
         $stripe = new \Stripe\StripeClient(
             'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
           );
-        $plan = $stripe->plans->delete(
-            $id,
-            []
-        );
-        if($plan){
+            $plan = ModelsPlan::where('plan_id',$id)->first();
+        if(isset($plan)){
+            $plan->delete();
+                $stripe->plans->delete(
+                $id,
+                []
+            );
             return success('Plan Deleted Successfully');
+        }else{
+            return error('Plan Not Deleted');
         }
-        return error('Plan Not Deleted Successfully');
     }
 
     public function listPlan(){
