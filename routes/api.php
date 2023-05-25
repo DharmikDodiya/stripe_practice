@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\ProductController;
@@ -51,7 +52,7 @@ Route::middleware('auth:sanctum')->group(function(){
 
     Route::controller(PriceController::class)->prefix('price')->group(function(){
         Route::post('create','createPrice');
-        Route::get('get','getPrice');
+        Route::get('get/{id}','getPrice');
         Route::patch('update/{id}','updatePrice');
         Route::get('list','priceList');
     });
@@ -72,5 +73,12 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('resume/{id}','resumeSubscription');
     });
 
+    Route::controller(InvoiceController::class)->prefix('invoice')->group(function(){
+        Route::post('create','createInvoice');
+        Route::get('get/{id}','getInvoice');
+        Route::patch('update/{id}','updateInvoice');
+        Route::get('list','listInvoice');
+        Route::delete('delete/{id}','deleteInvoice');
+    });
 
 });
