@@ -11,15 +11,13 @@ class SubscriptionController extends Controller
         $stripe = new \Stripe\StripeClient(
             'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
           );
-        $intent = auth()->user()->createSetupIntent;
-        //$plan = Plan::find($request->plan);
 
         $subscription = $stripe->subscriptions->create([
-            'customer' => 'cus_NwRQDsuVq0EeS3',
+            'customer' => $request->customer_id,
             'items' => [
-              ['price' => 'price_1NBAWESA4SjjlNffbRUJGkxv'],
-              //'default_payment_method'
+              ['price' => 'price_1NBAWESA4SjjlNffbRUJGkxv','payment_settings' => 'card'],
             ],
+            //'default_payment_method',
         ]);
         if($subscription){
             return success('Create Subscription Successfully',$subscription);
