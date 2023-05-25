@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Price;
 use Illuminate\Http\Request;
 
 class PriceController extends Controller
@@ -12,19 +13,29 @@ class PriceController extends Controller
         );
         $data = $stripe->prices->create([
             'unit_amount' => $request->unit_amount,
-            'currency' => 'usd',
-            'recurring' => $request->recurring,
+            'currency' => 'inr',
+            'recurring' => ['interval' => $request->interval],
             'product' => $request->product,
         ]);
+        //dd($data);
+        $price = Price::create([
+            'price_id'  => $data->id,
+            'active'    => $data->active,
+            'currency'  => $data->currency,
+            'type'      => $data->type,
+            'amount'    => $data->unit_amount,
+            'product_id'=> $data->product
+        ]);
+        //dd($price);
         return success('price created successfully',$data);
     }
 
-    public function getPrice(){
+    public function getPrice($id){
         $stripe = new \Stripe\StripeClient(
             'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
         );
         $price = $stripe->prices->retrieve(
-            'price_1NBDcNSA4SjjlNffTIzDGBkM',
+            $id,
             []
         );
         return success('Price Details',$price);
@@ -36,9 +47,15 @@ class PriceController extends Controller
         );
         $price = $stripe->prices->update(
             $id,
-            ['metadata' => ['order_id' => '6735']]
+            ['metadata' => ['order_id' => '6735','unit_amount' => $request->unit_amount,'product_id'=> $request->product]]
         );
-        return success('Price Updated Successfully',$price);
+
+        $data = Price::where('price_id',$id)->first();
+        $data->update($request->only(
+            'unit_amount',
+            'product'
+        ));
+        return success('Price Updated Successfully',$price,$data);
     }
 
     public function priceList(){
