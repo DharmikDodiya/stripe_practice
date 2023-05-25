@@ -27,7 +27,6 @@ class StripeController extends Controller{
         $user->charge($amount,$paymentMethod->id);
     }
 
-
     public function storePlan(Request $request){
         try{
         $amount = ($request->amount * 100);
@@ -42,7 +41,7 @@ class StripeController extends Controller{
             ],
         ]);
 
-       // dd($plan->paymentMethod);
+    //dd($plan->paymentMethod);
 
     //    \Stripe\Subscription::update(
     //         'sub_1NAtsISA4SjjlNffCUdGl7Si',
@@ -52,6 +51,7 @@ class StripeController extends Controller{
     //         ],
     //         ]
     //     );
+
         $sub = $this->stripe->subscriptions->create([
             'customer' => 'cus_NwRQDsuVq0EeS3',
             //'billing_method' =>'pi_3NAuPkSA4SjjlNff0ypr59Pg',
@@ -97,23 +97,17 @@ class StripeController extends Controller{
             ]);
         }
         else{
-            //dd($plan);
             $user = auth()->user();
-            //dd($user);
             $user->createOrGetStripeCustomer();
-            //dd($user);
             $plan = ModelsPlan::where('plan_id',$id)->first();
-            //dd($plan);
             $paymentMethod = null;
             $paymentMethod = $plan->billing_method;
-            dd($paymentMethod);
 
             if($paymentMethod != null){
                 $paymentMethod = $user->addPaymentMethod($paymentMethod);
             }
-            dd($paymentMethod);
             $plan = $request->plan_id;
-            dd($plan);
+
             try{
                 $user->newSubscription(
                     'default',$plan
@@ -121,9 +115,7 @@ class StripeController extends Controller{
             }catch(Exception $ex){
                 return response()->json($ex->getMessage());
             }
-            //dd($user);
             return response()->json('success',200);
-            //return response()->json(['data'=>$plan,'user'=>auth()->user()->createSetupIntent()]);
         }
     }
 
@@ -138,7 +130,7 @@ class StripeController extends Controller{
               'enabled' => true,
             ],
         ]);
-        dd($data);
+        return success('Payment Created Successfully',$data);
     }
 
 
