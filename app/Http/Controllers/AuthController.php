@@ -36,9 +36,10 @@ class AuthController extends Controller
             'email'=>'required',
             'password'=>'required'
         ]);
-
+        //dd($request->all());
         if(Auth::attempt(['email' =>$request->email,'password' => $request->password ])){
             $user = User::where('email', $request->email)->first();
+
             return response()->json(['You Are Login Now',$user->createToken("API TOKEN")->plainTextToken,200]);
         }
             return response()->json('Invalid Email Or Password');
