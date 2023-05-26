@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CardController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentMethodController;
@@ -57,8 +58,11 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('get/{id}','getPaymentMethod');
         Route::post('detach/{id}','detachPaymentMethod');
         Route::post('create-token','createToken');
-        Route::post('create-card/{id}','createCard');
         Route::post('create-payment/{id}','attachPaymentMethod');
+    });
+
+    Route::controller(CardController::class)->prefix('card')->group(function(){
+        Route::post('create-card/{id}','createCard');
     });
 
     Route::controller(PlanController::class)->prefix('plan')->group(function(){
