@@ -1,16 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Plan as ModelsPlan;
 use Exception;
+use Stripe\Plan;
 
+use Stripe\Token;
+use Stripe\Charge;
+use Stripe\Stripe;
+use Mockery\Expectation;
 use Illuminate\Http\Request;
+use App\Models\Plan as ModelsPlan;
+use Stripe\Stripe as StripeStripe;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
-use Mockery\Expectation;
-use Stripe;
-use Stripe\Plan;
-use Stripe\Stripe as StripeStripe;
 
 class StripeController extends Controller{
 
@@ -40,17 +43,6 @@ class StripeController extends Controller{
                 'name'  => $request->name,
             ],
         ]);
-
-    //dd($plan->paymentMethod);
-
-    //    \Stripe\Subscription::update(
-    //         'sub_1NAtsISA4SjjlNffCUdGl7Si',
-    //         [
-    //         'payment_settings' => [
-    //             'payment_method_types' => ['card'],
-    //         ],
-    //         ]
-    //     );
 
         $sub = $this->stripe->subscriptions->create([
             'customer' => 'cus_NwRQDsuVq0EeS3',
@@ -120,10 +112,8 @@ class StripeController extends Controller{
     }
 
     public function createPayment(Request $request){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $data = $stripe->paymentIntents->create([
+
+        $data = $this->stripe->paymentIntents->create([
             'amount' => 2000,
             'currency' => 'usd',
             'automatic_payment_methods' => [
@@ -134,49 +124,91 @@ class StripeController extends Controller{
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public function stripePayment(Request $request){
-    try{
-      $stripe = new Stripe\StripeClient(
-          env('STRIPE_SECRET')
-      );
-      $result = $stripe->tokens->create([
-        'card' => [
-            'number'    => $request->number,
-            'exp_month' => $request->exp_month,
-            'exp_year'  => $request->exp_year,
-            'cvc'       => $request->cvc
-        ]
-      ]);
+        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
-      Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-      $response = $stripe->paymentIntents->create([
-        'amount' => $request->amount,
-        'currency' => 'gbp',
-        //'source'    => $result->id,
-        'description' => $request->description,
-      ]);
-        return response()->json($response);
-    }
-    catch(Expectation $ex){
-        return response()->json('error');
-    }
+        $user = Auth::user();
+
+        $customer = $stripe->customers->create([
+            'name' => 'sarman dasa',
+            'email' => 'sarman@gmail.com',
+            'description' => 'My First Test Customer (created for API docs)',
+          ]);
+        //dd($customer->id);
+        // $charge = $stripe->charges->create([
+        // 'amount' => 300,
+        // 'currency' => 'usd',
+        // 'source' => $customer->token,
+        // 'description' => 'book',
+        // 'customer' => $customer,
+        // ]);
+        $paymentMethod = $this->stripe->paymentMethods->create([
+            'type' => 'card',
+            'card' => [
+                'number' => '4242424242424242',
+                'exp_month' => 8,
+                'exp_year' => 2024,
+                'cvc' => '314',
+            ],
+        ]);
+
+        $token =$this->stripe->tokens->create([
+            'card' => [
+                'number' => '4242424242424242',
+                'exp_month' => 5,
+                'exp_year' => 2024,
+                'cvc' => '314',
+            ],
+        ]);
+
+        $card = $this->stripe->customers->createSource(
+            $customer->id,
+            ['source' => $token->id]
+        );
+
+        $payment = $this->stripe->paymentMethods->attach(
+            $paymentMethod->id,
+            ['customer' => $customer->id]
+            );
+
+        $paymentIntent = $stripe->paymentIntents->create([
+            'amount' => 2000,
+            'currency' => 'gbp',
+            'payment_method_types' => ['card'],
+            'customer' => $customer->id
+          ]);
+
+        return success('charge created ',$paymentIntent);
+
+    // try{
+    //   $token =$this->stripe->tokens->create([
+    //         'card' => [
+    //             'number' => $request->number,
+    //             'exp_month' => $request->exp_month,
+    //             'exp_year' => $request->exp_year,
+    //             'cvc' => $request->cvc,
+    //         ],
+    //     ]);
+    //     \Stripe\Stripe::setApiKey('sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic');
+    //     $charge = \Stripe\Charge::create([
+    //         'amount' => 999,
+    //         'currency' => 'usd',
+    //         'description' => 'Example charge',
+    //         'source' => $token->id,
+    //       ]);
+
+    //   //dd($token);
+    //   $response = $this->stripe->paymentIntents->create([
+    //     'amount' => 500,
+    //     'currency' => 'gbp',
+    //     'source'    => $token->id,
+    //     'description' => 'first_payment',
+    //   ]);
+    //     return response()->json($charge);
+    // }
+    // catch(Expectation $ex){
+    //     return response()->json('error');
+    // }
     }
 }
 
