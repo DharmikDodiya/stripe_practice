@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\ProductController;
@@ -29,17 +31,34 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('stripe',[StripeController::class,'stripePayment']);
 
 
-Route::middleware('auth:sanctum')->group(function(){
+Route::controller(AuthController::class)->group(function(){
+    Route::post('register','register');
+    Route::post('login','login');
+});
 
-    Route::controller(AuthController::class)->group(function(){
-        Route::post('register','register');
-        Route::post('login','login');
-    });
+Route::middleware('auth:sanctum')->group(function(){
 
     Route::controller(StripeController::class)->prefix('stripe')->group(function(){
         Route::post('single-charge','singleCharge');
         Route::post('plan-checkout/{id}','planCheckout');
-        Route::post('create-payment','createPayment');
+        Route::post('create-payment','stripePayment');
+    });
+
+    Route::controller(CustomerController::class)->prefix('customer')->group(function(){
+        Route::post('create','createCustomer');
+        Route::get('get/{id}','getCustomer');
+        Route::get('list','listCustomer');
+        Route::delete('delete/{id}','deleteCustomer');
+    });
+
+    Route::controller(PaymentMethodController::class)->prefix('payment-method')->group(function(){
+        Route::post('create','createPaymentMethod');
+        Route::get('list/{id}','listPaymentMethod');
+        Route::get('get/{id}','getPaymentMethod');
+        Route::post('detach/{id}','detachPaymentMethod');
+        Route::post('create-token','createToken');
+        Route::post('create-card/{id}','createCard');
+        Route::post('create-payment/{id}','attachPaymentMethod');
     });
 
     Route::controller(PlanController::class)->prefix('plan')->group(function(){
