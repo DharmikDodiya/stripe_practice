@@ -2,8 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CardController;
+use App\Http\Controllers\ChargeController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PaymentIntentController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PriceController;
@@ -63,6 +67,9 @@ Route::middleware('auth:sanctum')->group(function(){
 
     Route::controller(CardController::class)->prefix('card')->group(function(){
         Route::post('create-card/{id}','createCard');
+        Route::get('{cus_id}/get/{card_id}','getCard');
+        Route::delete('{cus_id}/delete/{card_id}','deleteCard');
+        Route::get('list/{id}','listCard');
     });
 
     Route::controller(PlanController::class)->prefix('plan')->group(function(){
@@ -104,4 +111,24 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::delete('delete/{id}','deleteInvoice');
     });
 
+    Route::controller(ChargeController::class)->prefix('charge')->group(function(){
+        Route::post('create','createCharge');
+    });
+
+    Route::controller(CouponController::class)->prefix('coupon')->group(function(){
+        Route::post('create','createCoupon');
+        Route::get('get/{id}','getCoupon');
+        Route::put('update/{id}','updateCoupon');
+        Route::get('list','listCoupon');
+        Route::delete('delete/{id}','deleteCoupon');
+        // Route::post('create-payout','createPayout');
+    });
+
+    Route::controller(PaymentIntentController::class)->prefix('payment-intent')->group(function(){
+        Route::post('create','createFile');
+        Route::get('get/{id}','getPaymentIntent');
+        Route::get('list','listPaymentIntent');
+        Route::put('update/{id}','updatePaymentIntent');
+        Route::post('capture/{id}','capturePaymentIntent');
+    });
 });
