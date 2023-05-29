@@ -125,7 +125,7 @@ Route::middleware('auth:sanctum')->group(function(){
     });
 
     Route::controller(PaymentIntentController::class)->prefix('payment-intent')->group(function(){
-        Route::post('create','createFile');
+        Route::post('create','createPaymentIntent');
         Route::get('get/{id}','getPaymentIntent');
         Route::get('list','listPaymentIntent');
         Route::put('update/{id}','updatePaymentIntent');
