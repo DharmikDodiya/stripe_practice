@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class PaymentIntentController extends Controller
 {
-    public function createFile(Request $request){
+    public function createPaymentIntent(Request $request){
 
         $paymentIntent = $this->stripe->paymentIntents->create([
         'amount' => $request->amount,
