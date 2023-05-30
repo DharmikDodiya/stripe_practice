@@ -39,10 +39,7 @@ class PlanController extends Controller
     }
 
     public function getPlan($id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $plan = $stripe->plans->retrieve(
+        $plan = $this->stripe->plans->retrieve(
             $id,
             []
         );
@@ -54,10 +51,7 @@ class PlanController extends Controller
 
 
     public function updatePlan(Request $request,$id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $plan = $stripe->plans->update(
+        $plan = $this->stripe->plans->update(
             $id,
             ['metadata' => ['order_id' => '6735']]
         );
@@ -68,13 +62,10 @@ class PlanController extends Controller
     }
 
     public function deletePlan($id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-          );
             $plan = ModelsPlan::where('plan_id',$id)->first();
         if(isset($plan)){
             $plan->delete();
-                $stripe->plans->delete(
+                $this->stripe->plans->delete(
                 $id,
                 []
             );
@@ -85,11 +76,7 @@ class PlanController extends Controller
     }
 
     public function listPlan(){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-
-        $plan = $stripe->plans->all();
+        $plan = $this->stripe->plans->all();
         if(count($plan) > 0){
             return success('Plan List',$plan,200);
         }

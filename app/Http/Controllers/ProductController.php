@@ -8,10 +8,7 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     public function createProduct(Request $request){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $product = $stripe->products->create([
+        $product = $this->stripe->products->create([
             'name' => $request->name,
             'description' => $request->description,
         ]);
@@ -29,10 +26,7 @@ class ProductController extends Controller
     }
 
     public function getProduct($id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $product = $stripe->products->retrieve(
+        $product = $this->stripe->products->retrieve(
             $id,
             []
         );
@@ -43,10 +37,7 @@ class ProductController extends Controller
     }
 
     public function listProduct(){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $products = $stripe->products->all();
+        $products = $this->stripe->products->all();
         if($products){
             return success('Product List',$products,200);
         }
@@ -54,10 +45,7 @@ class ProductController extends Controller
     }
 
     public function updateProduct(Request $request,$id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $product = $stripe->products->update(
+        $product = $this->stripe->products->update(
             $id,
             ['metadata' => ['order_id' => '6735','name' => $request->name,'description' => $request->description]]
         );
@@ -74,13 +62,10 @@ class ProductController extends Controller
     }
 
     public function deleteProduct($id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
         $product = Product::where('product_id',$id)->first();
         if(isset($product)){
             $product->delete();
-            $product = $stripe->products->delete(
+            $product = $this->stripe->products->delete(
             $id,
             []
             );

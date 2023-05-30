@@ -124,10 +124,9 @@ class StripeController extends Controller{
     }
 
     public function stripePayment(Request $request){
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
         $user = Auth::user();
 
-        $customer = $stripe->customers->create([
+        $customer = $this->stripe->customers->create([
             'name' => 'sarman dasa',
             'email' => 'sarman@gmail.com',
             'description' => 'My First Test Customer (created for API docs)',
@@ -162,7 +161,7 @@ class StripeController extends Controller{
             ['customer' => $customer->id]
             );
 
-        $paymentIntent = $stripe->paymentIntents->create([
+        $paymentIntent = $this->stripe->paymentIntents->create([
             'amount' => 2000,
             'currency' => 'gbp',
             'payment_method_types' => ['card'],

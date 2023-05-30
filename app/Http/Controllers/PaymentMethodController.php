@@ -10,10 +10,10 @@ class PaymentMethodController extends Controller
         $paymentMethod = $this->stripe->paymentMethods->create([
             'type' => 'card',
             'card' => [
-                'number' => '4242424242424242',
-                'exp_month' => 8,
-                'exp_year' => 2024,
-                'cvc' => '314',
+                'number' => $request->number,
+                'exp_month' => $request->exp_month,
+                'exp_year' => $request->exp_year,
+                'cvc' => $request->cvc,
             ],
         ]);
         return success('PaymentMethod Created Successfully',$paymentMethod);
