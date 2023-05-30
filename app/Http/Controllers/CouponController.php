@@ -52,13 +52,4 @@ class CouponController extends Controller
         $this->stripe->coupons->delete($id, []);
         return success('Coupon deleted Successfully');
     }
-
-    // public function createPayout(Request $request){
-    //     //dd('dd');
-    //     $payout = $this->stripe->payouts->create([
-    //     'amount' => 1200,
-    //     'currency' => 'usd',
-    //     ]);
-    //     return success('PayOut Created Successfully',$payout);
-    // }
 }
