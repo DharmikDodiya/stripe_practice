@@ -8,16 +8,12 @@ class SubscriptionController extends Controller
 {
 
     public function createSubscription(Request $request){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-          );
 
-        $subscription = $stripe->subscriptions->create([
+        $subscription = $this->stripe->subscriptions->create([
             'customer' => $request->customer_id,
             'items' => [
-              ['price' => 'price_1NBAWESA4SjjlNffbRUJGkxv','payment_settings' => 'card'],
+              ['price' => $request->price,'payment_settings' => 'card'],
             ],
-            //'default_payment_method',
         ]);
         if($subscription){
             return success('Create Subscription Successfully',$subscription);
@@ -28,26 +24,18 @@ class SubscriptionController extends Controller
     }
 
     public function getSubscription(Request $request,$id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        if($stripe){
-            $subscription =$stripe->subscriptions->retrieve(
+            $subscription = $this->stripe->subscriptions->retrieve(
                 $id,
                 []
             );
+            if(isset($subscription)){
             return success('Subscription List',$subscription);
-        }
-        else{
+            }
             return error(['message' => 'No Subscription Found',404]);
-        }
     }
 
     public function listSubscription(){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $subscriptions = $stripe->subscriptions->all();
+        $subscriptions = $this->stripe->subscriptions->all();
         if($subscriptions){
             return success('Subscription List',$subscriptions,200);
         }
@@ -55,10 +43,7 @@ class SubscriptionController extends Controller
     }
 
     public function cancleSubscription($id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $subscription = $stripe->subscriptions->cancel(
+        $subscription = $this->stripe->subscriptions->cancel(
             $id,
             []
         );
@@ -66,10 +51,7 @@ class SubscriptionController extends Controller
     }
 
     public function resumeSubscription($id){
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_51N9PI1SA4SjjlNffXOm2HtQ2zzoiol7xYb5YOZo0ifzWyk81AsLmUiM4vkL2SgbbcJ4WRNhrB4gxYRWIAvx1gB6j00pZlqtqic'
-        );
-        $stripe->subscriptions->resume(
+        $this->stripe->subscriptions->resume(
             $id,
             ['billing_cycle_anchor' => 'now']
         );
