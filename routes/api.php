@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\CouponController;
@@ -9,9 +10,11 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentIntentController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ShippingRateController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Http\Request;
@@ -121,7 +124,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('update/{id}','updateCoupon');
         Route::get('list','listCoupon');
         Route::delete('delete/{id}','deleteCoupon');
-        // Route::post('create-payout','createPayout');
+        //Route::post('create-payout','createPayout');
     });
 
     Route::controller(PaymentIntentController::class)->prefix('payment-intent')->group(function(){
@@ -130,5 +133,26 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('list','listPaymentIntent');
         Route::put('update/{id}','updatePaymentIntent');
         Route::post('capture/{id}','capturePaymentIntent');
+    });
+
+    Route::controller(BankController::class)->prefix('bank')->group(function(){
+        Route::post('create/{cid}','createBank');
+        Route::get('list/{cid}','listBank');
+        Route::post('{cid}/verify-bank/{bid}','verifyBank');
+        Route::get('{cid}/get/{bid}','getBank');
+        Route::get('{cid}/retrieve/{bid}','retrieveBank');
+        Route::put('{cid}/update/{bid}','updateBank');
+        Route::delete('{cid}/delete/{bid}','deleteBank');
+    });
+
+    Route::controller(PayoutController::class)->prefix('payout')->group(function(){
+        Route::post('create','createPayout');
+    });
+
+    Route::controller(ShippingRateController::class)->prefix('shipping-rate')->group(function(){
+        Route::post('create','createShippingRate');
+        Route::get('list','listShippingRate');
+        Route::get('get/{id}','getShippingRate');
+        Route::put('update/{id}','updateShippingRate');
     });
 });
