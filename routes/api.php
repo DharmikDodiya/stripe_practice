@@ -6,6 +6,7 @@ use App\Http\Controllers\CardController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentIntentController;
@@ -14,9 +15,12 @@ use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\RefundController;
 use App\Http\Controllers\ShippingRateController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TaxRateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -155,4 +159,33 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::get('get/{id}','getShippingRate');
         Route::put('update/{id}','updateShippingRate');
     });
+
+    Route::controller(QuoteController::class)->prefix('quote')->group(function(){
+        Route::post('create','createQuote');
+        Route::get('get/{id}','retrieveQuote');
+        Route::put('update/{id}','updateQuote');
+        Route::post('finalize/{id}','finalizeQuote');
+        Route::post('accept/{id}','acceptQuote');
+        Route::get('download-pdf/{id}','downloadPdf');
+        Route::get('list','listQuote');
+        Route::get('quoteline-item/{id}','QuoteLineItem');
+        Route::get('quoteupfromt-lineiteam/{id}','QuoteUpfrontLineItem');
+        Route::post('cancle/{id}','cancleQuote');
+    });
+
+    Route::controller(EventController::class)->prefix('event')->group(function(){
+        Route::get('retrieve/{id}','retrieveEvent');
+        Route::get('list','listEvent');
+    });
+
+    Route::controller(TaxRateController::class)->prefix('taxrate')->group(function(){
+        Route::post('create','createTaxRate');
+        Route::get('retrieve/{id}','retrieveTaxRate');
+        Route::get('list','listTaxRate');
+        Route::put('update/{id}','updateTaxRate');
+    });
+
+    // Route::controller(RefundController::class)->prefix('refund')->group(function(){
+    //     Route::post('create','createRefund');
+    // });
 });
