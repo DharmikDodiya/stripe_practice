@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Traits\ListingApiTrait;
 class CardController extends Controller
 {
+    use ListingApiTrait;
     public function createCard(Request $request,$id){
         $card = $this->stripe->customers->createSource(
             $id,
@@ -37,9 +38,12 @@ class CardController extends Controller
             $id,
             [
                 'object' => 'card',
-                'limit' => 3,
             ]
         );
-        return success('Card List',$cards);
+        $data = $this->filterSearchPagination($cards,$searchable_fields ?? null);
+        return success('Cards List',[
+            'cards'        => $data['query'],
+            'count'        => $data['count']
+        ]);
     }
 }

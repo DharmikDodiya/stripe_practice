@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Invoice;
 use Exception;
 use Illuminate\Http\Request;
-
+use App\Traits\ListingApiTrait;
 class InvoiceController extends Controller
 {
+    use ListingApiTrait;
     public function createInvoice(Request $request){
 
         $invoice = $this->stripe->invoices->create([
@@ -63,7 +64,11 @@ class InvoiceController extends Controller
     public function listInvoice(){
         try{
         $invoice = $this->stripe->invoices->all();
-            return success('Invoice List',$invoice);
+            $data = $this->filterSearchPagination($invoice,$searchable_fields ?? null);
+            return success('Invoice List',[
+                'invoice'        => $data['query'],
+                'count'          => $data['count']
+            ]);
         }catch(Exception $ex){
             return error('Invoice Not Found',$ex);
         }

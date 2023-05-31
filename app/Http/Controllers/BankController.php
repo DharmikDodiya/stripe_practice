@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
+use App\Traits\ListingApiTrait;
 
 class BankController extends Controller
 {
+    use ListingApiTrait;
     public function createBank(Request $request,$cid){
 
         $this->validate($request,[
@@ -38,7 +40,11 @@ class BankController extends Controller
             'object' => 'bank_account',
             ]
         );
-        return success('Bank List',$bank);
+        $data = $this->filterSearchPagination($bank,$searchable_fields ?? null);
+        return success('Bank List',[
+            'Bank'        => $data['query'],
+            'count'       => $data['count']
+        ]);
     }
 
     public function verifyBank(Request $request,$cid,$bid){

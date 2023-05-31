@@ -6,9 +6,11 @@ use App\Models\Plan as ModelsPlan;
 use Exception;
 use Illuminate\Http\Request;
 use Stripe\Plan;
+use App\Traits\ListingApiTrait;
 
 class PlanController extends Controller
 {
+    use ListingApiTrait;
     public function storePlan(Request $request){
         try{
         $amount = ($request->amount * 100);
@@ -78,7 +80,11 @@ class PlanController extends Controller
     public function listPlan(){
         $plan = $this->stripe->plans->all();
         if(count($plan) > 0){
-            return success('Plan List',$plan,200);
+            $data = $this->filterSearchPagination($plan,$searchable_fields ?? null);
+            return success('Plan List',[
+                'plan'        => $data['query'],
+                'count'       => $data['count']
+            ]);
         }
         return error('Plan Not Found',404);
     }

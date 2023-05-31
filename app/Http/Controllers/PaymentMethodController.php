@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Traits\ListingApiTrait;
 use Illuminate\Http\Request;
 
 class PaymentMethodController extends Controller
 {
+    use ListingApiTrait;
     public function createPaymentMethod(Request $request){
         $paymentMethod = $this->stripe->paymentMethods->create([
             'type' => 'card',
@@ -25,7 +26,11 @@ class PaymentMethodController extends Controller
         'type' => 'card',
         ]);
         if(isset($paymentMethods)){
-            return success('Payment Method List',$paymentMethods);
+            $data = $this->filterSearchPagination($paymentMethods,$searchable_fields ?? null);
+            return success('PaymentMethods List',[
+                'PaymentMethods'        => $data['query'],
+                'count'                => $data['count']
+            ]);
         }else{
             return error('Payment Method Not found');
         }

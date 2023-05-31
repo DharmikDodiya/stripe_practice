@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Session;
 
 class StripeController extends Controller{
 
-
     public function singleCharge(Request $request){
         $amount = $request->amount;
         $amount = $amount * 100;

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Traits\ListingApiTrait;
 class CouponController extends Controller
 {
+    use ListingApiTrait;
     public function createCoupon(Request $request){
 
         $coupon = $this->stripe->coupons->create([
@@ -43,7 +44,11 @@ class CouponController extends Controller
     public function listCoupon(){
         $coupon = $this->stripe->coupons->all();
         if($coupon){
-            return success('Coupon List',$coupon);
+            $data = $this->filterSearchPagination($coupon,$searchable_fields ?? null);
+            return success('Coupon List',[
+                'coupon'         => $data['query'],
+                'count'          => $data['count']
+            ]);
         }
             return error('Coupon Not Found');
     }

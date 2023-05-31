@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\Return_;
-
+use App\Traits\ListingApiTrait;
 class ShippingRateController extends Controller
 {
+    use ListingApiTrait;
     public function createShippingRate(Request $request){
         $shipping_rate = $this->stripe->shippingRates->create([
         'display_name' => $request->name,
@@ -25,7 +25,11 @@ class ShippingRateController extends Controller
     public function listShippingRate(){
         $shipping_rate = $this->stripe->shippingRates->all();
         if($shipping_rate){
-            return success('List Shipping Rate',$shipping_rate);
+            $data = $this->filterSearchPagination($shipping_rate,$searchable_fields ?? null);
+            return success('ShippingRate List',[
+                'shipping_rate'        => $data['query'],
+                'count'                => $data['count']
+            ]);
         }
             return error('Shipping Rate Not Found');
     }

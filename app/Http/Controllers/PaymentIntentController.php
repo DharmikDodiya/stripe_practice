@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Traits\ListingApiTrait;
 class PaymentIntentController extends Controller
 {
+    use ListingApiTrait;
     public function createPaymentIntent(Request $request){
 
         $paymentIntent = $this->stripe->paymentIntents->create([
@@ -29,7 +30,11 @@ class PaymentIntentController extends Controller
     public function listPaymentIntent(){
         $paymentIntents = $this->stripe->paymentIntents->all();
         if(count($paymentIntents)){
-            return success('Payment Intent List',$paymentIntents);
+            $data = $this->filterSearchPagination($paymentIntents,$searchable_fields ?? null);
+            return success('PaymentIntent List',[
+                'PaymnetIntent'        => $data['query'],
+                'count'                => $data['count']
+            ]);
         }
             return error('Payment-Intent List Not Found');
     }

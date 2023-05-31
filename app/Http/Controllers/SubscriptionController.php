@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Traits\ListingApiTrait;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
-
+    use ListingApiTrait;
     public function createSubscription(Request $request){
 
         $subscription = $this->stripe->subscriptions->create([
@@ -37,7 +37,11 @@ class SubscriptionController extends Controller
     public function listSubscription(){
         $subscriptions = $this->stripe->subscriptions->all();
         if($subscriptions){
-            return success('Subscription List',$subscriptions,200);
+            $data = $this->filterSearchPagination($subscriptions,$searchable_fields ?? null);
+            return success('Subscription List',[
+                'subscription'        => $data['query'],
+                'count'                => $data['count']
+            ]);
         }
         return error('Subscription Not Found',404);
     }

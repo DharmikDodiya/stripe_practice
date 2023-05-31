@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-
+use App\Traits\ListingApiTrait;
 class ProductController extends Controller
 {
+    use ListingApiTrait;
     public function createProduct(Request $request){
         $product = $this->stripe->products->create([
             'name' => $request->name,
@@ -39,7 +40,11 @@ class ProductController extends Controller
     public function listProduct(){
         $products = $this->stripe->products->all();
         if($products){
-            return success('Product List',$products,200);
+            $data = $this->filterSearchPagination($products,$searchable_fields ?? null);
+            return success('Products List',[
+                'product'        => $data['query'],
+                'count'          => $data['count']
+            ]);
         }
         return error('Product Not Found',404);
     }

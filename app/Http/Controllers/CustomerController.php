@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
-
+use App\Traits\ListingApiTrait;
 class CustomerController extends Controller
 {
+    use ListingApiTrait;
     public function createCustomer(Request $request){
         $customer = $this->stripe->customers->create([
             'description' => $request->description,
@@ -30,7 +31,11 @@ class CustomerController extends Controller
     public function listCustomer(){
         $customersData = $this->stripe->customers->all();
         if(isset($customersData)){
-            return success('List All Customers',$customersData);
+            $data = $this->filterSearchPagination($customersData,$searchable_fields ?? null);
+            return success('Customers List',[
+                'Customers'         => $data['query'],
+                'count'             => $data['count']
+            ]);
         }
         return error('Customers Not Found');
     }

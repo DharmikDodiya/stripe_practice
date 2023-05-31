@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Price;
 use Illuminate\Http\Request;
-
+use App\Traits\ListingApiTrait;
 class PriceController extends Controller
 {
+    use ListingApiTrait;
     public function createPrice(Request $request){
         $data = $this->stripe->prices->create([
             'unit_amount' => $request->unit_amount,
@@ -52,7 +53,11 @@ class PriceController extends Controller
     public function priceList(){
         $prices = $this->stripe->prices->all();
         if($prices){
-            return success('List Of All Price',$prices);
+            $data = $this->filterSearchPagination($prices,$searchable_fields ?? null);
+            return success('Price List',[
+                'price'        => $data['query'],
+                'count'        => $data['count']
+            ]);
         }
         else{
             return error('Price Not Found');
